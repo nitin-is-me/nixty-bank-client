@@ -3,8 +3,8 @@ import localFont from "next/font/local";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.min.css"
 export const metadata = {
-  title: "Study together",
-  description: "Study rooms to stay focused",
+  title: "Nixty bank",
+  description: "Make fast and secure payments",
 };
 
 export default function RootLayout({ children }) {

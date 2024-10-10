@@ -23,7 +23,7 @@ const Dashboard = () => {
       setBalance(response.data.balance);
     } catch (error) {
       console.error('Error fetching user info:', error);
-      // router.push('/auth/login'); // Uncomment if you want to redirect on error
+      // router.push('/auth/login'); 
     }
   };
 
@@ -38,7 +38,7 @@ const Dashboard = () => {
     } catch (error) {
       console.error('Error fetching transactions:', error);
     } finally {
-      setLoading(false); // Set loading to false once transactions are fetched
+      setLoading(false);
     }
   };
 
