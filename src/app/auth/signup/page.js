@@ -75,7 +75,7 @@ export default function Signup() {
         setMessage("");
       }
     } catch (error) {
-      setError("An error occurred while verifying OTP");
+      setError(error.response?.data || "An error occurred while verifying OTP");
       setMessage("");
     } finally {
       setLoadingOtp(false);
