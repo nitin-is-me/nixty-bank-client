@@ -47,7 +47,7 @@ export default function Signup() {
         setMessage("");
       }
     } catch (error) {
-      setError("An error occurred");
+      setError(error.response?.data || "An error occured");
       setMessage("");
     } finally {
       setLoadingSignup(false);
