@@ -78,6 +78,18 @@ const Dashboard = () => {
         <div>
           <div className="bg-dark text-white text-center py-3">
             <h1 className="m-0">Nixty Bank</h1>
+            <button
+              className="btn btn-danger position-absolute"
+              style={{ top: '1rem', right: '1rem', fontSize: "0.85rem" }}
+              onClick={handleLogout}
+              disabled={loadingLogout}
+            >
+              {loadingLogout ? (
+                <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+              ) : (
+                'Logout'
+              )}
+            </button>
           </div>
 
           <div className="container mt-5">
@@ -143,15 +155,7 @@ const Dashboard = () => {
               </div>
             </div>
 
-            <div className="position-fixed bottom-0 end-0 p-2">
-              <button className="btn btn-danger" onClick={handleLogout} disabled={loadingLogout}>
-                {loadingLogout ? (
-                  <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                ) : (
-                  'Logout'
-                )}
-              </button>
-            </div>
+
           </div>
         </div>
       )}

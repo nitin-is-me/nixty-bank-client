@@ -44,7 +44,7 @@ export default function Login() {
         setMessage('');
       }
     } catch (err) {
-      setError('An error occurred: ' + (err.response?.data || err.message));
+      setError(err.response?.data || err.message + ", try again");
       setLoading(false);
     }
   };

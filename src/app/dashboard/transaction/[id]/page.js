@@ -51,14 +51,10 @@ const TransactionDetails = ({ params }) => {
   return (
     <AuthCheck>
       <div className="container mt-5">
-        <button
-          className="btn btn-secondary mb-3 position-fixed"
+      <button
+          className="btn btn-secondary position-fixed"
           onClick={() => router.push('/dashboard')}
-          style={{
-            top: '1rem',
-            left: '1rem',
-            zIndex: 1000,
-          }}
+          style={{ top: '0.5rem', left: '0.5rem', zIndex: 1000, fontSize: "0.85rem" }}
         >
           <i className="bi bi-arrow-left"></i> Dashboard
         </button>

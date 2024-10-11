@@ -58,11 +58,11 @@ const TransactionPage = () => {
       );
 
       setRecipientName(response.data.receiver.name);
-      setBalance(prevBalance => prevBalance - parseFloat(amount)); // Update balance dynamically
+      setBalance(prevBalance => prevBalance - parseFloat(amount));
       setSuccess(true);
     } catch (error) {
       console.error('Error making payment:', error);
-      setMessage(error.response?.data.message || 'Error making payment');
+      setMessage(error.response?.data || 'Error making payment');
     } finally {
       setPaymentLoading(false);
     }
@@ -92,7 +92,7 @@ const TransactionPage = () => {
         <button
           className="btn btn-secondary position-fixed"
           onClick={() => router.push('/dashboard')}
-          style={{ top: '1rem', left: '1rem', zIndex: 1000 }}
+          style={{ top: '0.5rem', left: '0.5rem', zIndex: 1000, fontSize: "0.85rem" }}
         >
           <i className="bi bi-arrow-left"></i> Dashboard
         </button>
@@ -122,10 +122,11 @@ const TransactionPage = () => {
         <button
           className="btn btn-secondary position-fixed"
           onClick={() => router.push('/dashboard')}
-          style={{ top: '1rem', left: '1rem', zIndex: 1000 }}
+          style={{ top: '0.5rem', left: '0.5rem', zIndex: 1000, fontSize: "0.85rem" }}
         >
           <i className="bi bi-arrow-left"></i> Dashboard
         </button>
+
 
         <div className="row mt-4">
           <div className="col-md-6 mx-auto">
