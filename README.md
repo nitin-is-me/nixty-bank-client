@@ -2,7 +2,8 @@
 Nixty-bank is a mock bank project. Once you sign up, you're provided a 10 digit unique account number. <br>
 You can make transactions using receiver's account number or username.<br>
 You can visit your transactions, and click on them to view full details about the specific transaction (dynamic routing).<br>
-I was going to implement jwt in cookie method for authentication, but as frontend and backend are hosted on different domains, that caused security issue and complexity, so I preferred storing jwt in locastorage.
+I was going to implement jwt in cookie method for authentication, but as frontend and backend are hosted on different domains, that caused security issue and complexity, so I preferred storing jwt in locastorage.<br>
+You can check the server side code <a href="https://github.com/nitin-is-me/nixty-bank-server/">here</a>
 
 ## Version History
 | Version | Date       | Summary         |
