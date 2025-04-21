@@ -11,8 +11,12 @@ const Dashboard = () => {
   const [transactions, setTransactions] = useState([]);
   const [loadingLogout, setLoadingLogout] = useState(false);
   const [loadingPayment, setLoadingPayment] = useState(false);
+  const [userLoading, setUserLoading] = useState(true);
+  const [transactionsLoading, setTransactionsLoading] = useState(true);
   const router = useRouter();
 
+  const overallLoading = userLoading || transactionsLoading;
+  
   const fetchUserInfo = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -24,6 +28,8 @@ const Dashboard = () => {
     } catch (error) {
       console.error('Error fetching user info:', error);
       // router.push('/auth/login'); 
+    } finally{
+      setUserLoading(false);
     }
   };
 
@@ -38,7 +44,7 @@ const Dashboard = () => {
     } catch (error) {
       console.error('Error fetching transactions:', error);
     } finally {
-      setLoading(false);
+      setTransactionsLoading(false);
     }
   };
 
@@ -68,7 +74,7 @@ const Dashboard = () => {
 
   return (
     <AuthCheck>
-      {loading ? (
+      {overallLoading ? (
         <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
           <div className="spinner-border text-primary" role="status">
             <span className="visually-hidden">Loading...</span>
