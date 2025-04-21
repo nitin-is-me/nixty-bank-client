@@ -2,9 +2,11 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import AuthCheck from '@/app/components/AuthCheck';
 
-const TransactionDetails = ({ params }) => {
+const TransactionDetails = () => {
+  const params = useParams();
   const { id } = params;
   const [transaction, setTransaction] = useState(null);
   const [loading, setLoading] = useState(true);
