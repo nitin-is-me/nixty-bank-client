@@ -1,8 +1,8 @@
 "use client";
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { useRouter } from 'next/navigation';
-import AuthCheck from '../components/AuthCheck';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { useRouter } from "next/navigation";
+import AuthCheck from "../components/AuthCheck";
 
 const Dashboard = () => {
   const [userInfo, setUserInfo] = useState(null);
@@ -17,42 +17,67 @@ const Dashboard = () => {
 
   const overallLoading = userLoading || transactionsLoading;
 
-  const fetchUserInfo = async () => {
+  const fetchUserInfo = async (token) => {
+    // require token (caller should pass it)
     try {
-      const token = localStorage.getItem("token");
-      const res = await axios.get("https://nixty-bank-hosted-backend.vercel.app/auth/userInfo", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await axios.get(
+        "https://nixty-bank-hosted-backend.vercel.app/auth/userInfo",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       setUserInfo(res.data);
       setBalance(res.data.balance);
     } catch (err) {
       console.error("Error fetching user info:", err);
+      // if unauthorized, redirect to login
+      if (err?.response?.status === 401) {
+        localStorage.removeItem("token");
+        router.replace("/auth/login");
+      }
     } finally {
       setUserLoading(false);
     }
   };
 
-  const fetchTransactions = async () => {
+  const fetchTransactions = async (token) => {
     try {
-      const token = localStorage.getItem("token");
-      const res = await axios.get("https://nixty-bank-hosted-backend.vercel.app/transaction/getTransactions", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await axios.get(
+        "https://nixty-bank-hosted-backend.vercel.app/transaction/getTransactions",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       const sorted = res.data.sort((a, b) => new Date(b.date) - new Date(a.date));
       setTransactions(sorted);
     } catch (err) {
       console.error("Error fetching transactions:", err);
+      if (err?.response?.status === 401) {
+        localStorage.removeItem("token");
+        router.replace("/auth/login");
+      }
     } finally {
       setTransactionsLoading(false);
     }
   };
 
   useEffect(() => {
-    const fetchData = async () => {
-      await fetchUserInfo();
-      await fetchTransactions();
+    const init = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        // no token -> not logged in: stop loading and redirect (or show login CTA)
+        setUserLoading(false);
+        setTransactionsLoading(false);
+        router.replace("/auth/login"); // change to router.push if you want a back history entry
+        return;
+      }
+
+      // have token: call apis
+      await fetchUserInfo(token);
+      await fetchTransactions(token);
     };
-    fetchData();
+    init();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleLogout = async () => {
@@ -71,13 +96,25 @@ const Dashboard = () => {
     router.push("/dashboard/pay");
   };
 
-  // 👇 Stronger guard — waits until real data exists
-  if (overallLoading || !userInfo || balance === null) {
+  // Spinner only while actual network loading is happening
+  if (overallLoading) {
     return (
       <div className="d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
         <div className="spinner-border text-primary" role="status">
           <span className="visually-hidden">Loading...</span>
         </div>
+      </div>
+    );
+  }
+
+  // If not loading but we have no userInfo, the user is unauthenticated (show login CTA)
+  if (!userInfo || balance === null) {
+    return (
+      <div className="d-flex flex-column justify-content-center align-items-center" style={{ height: "100vh" }}>
+        <h3 className="mb-3">You are not logged in</h3>
+        <button className="btn btn-primary" onClick={() => router.push("/auth/login")}>
+          Go to Login
+        </button>
       </div>
     );
   }
@@ -109,11 +146,7 @@ const Dashboard = () => {
               <div className="card shadow-sm p-4 text-center">
                 <h3>My Balance</h3>
                 <h1 className="text-success">${balance.toFixed(2)}</h1>
-                <button
-                  className="btn btn-primary mt-3"
-                  onClick={handlePayClick}
-                  disabled={loadingPayment}
-                >
+                <button className="btn btn-primary mt-3" onClick={handlePayClick} disabled={loadingPayment}>
                   {loadingPayment ? (
                     <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                   ) : (
@@ -154,10 +187,7 @@ const Dashboard = () => {
                           <span className={isSender ? "text-danger" : "text-success"}>
                             {isSender ? "-" : "+"}${Math.abs(t.amount).toFixed(2)}
                           </span>
-                          <button
-                            onClick={() => router.push(`/dashboard/transaction/${t._id}`)}
-                            className="btn btn-link"
-                          >
+                          <button onClick={() => router.push(`/dashboard/transaction/${t._id}`)} className="btn btn-link">
                             View Details
                           </button>
                         </li>
