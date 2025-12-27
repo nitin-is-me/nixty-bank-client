@@ -151,7 +151,7 @@ const Dashboard = () => {
                   </div>
                 </CardContent>
                 <div className="p-6 pt-0">
-                  <Button className="w-full" onClick={handlePayClick} disabled={loadingPayment}>
+                  <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white" onClick={handlePayClick} disabled={loadingPayment}>
                     {loadingPayment ? "Loading..." : "Pay to Account"}
                   </Button>
                 </div>
