@@ -2,7 +2,13 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
-import AuthCheck from '@/app/components/AuthCheck'; // Import AuthCheck
+import AuthCheck from '@/app/components/AuthCheck';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { ArrowLeft, Loader2, CheckCircle } from 'lucide-react';
+import { ModeToggle } from '@/components/mode-toggle';
 
 const TransactionPage = () => {
   const [name, setName] = useState('');
@@ -42,7 +48,7 @@ const TransactionPage = () => {
   const handlePayment = async (e) => {
     e.preventDefault();
     setPaymentLoading(true);
-    setMessage(''); // Clear previous messages
+    setMessage('');
     try {
       const token = localStorage.getItem("token");
       const response = await axios.post(
@@ -78,124 +84,125 @@ const TransactionPage = () => {
 
   if (loading) {
     return (
-      <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
+      <div className="flex justify-center items-center h-screen bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
 
   if (success) {
     return (
-      <div className="container mt-5 text-center">
-        <button
-          className="btn btn-secondary position-fixed"
-          onClick={() => router.push('/dashboard')}
-          style={{ top: '0.5rem', left: '0.5rem', zIndex: 1000, fontSize: "0.85rem" }}
-        >
-          <i className="bi bi-arrow-left"></i> Dashboard
-        </button>
-        <div className="row justify-content-center">
-          <div className="col-md-6">
-            <div className="card shadow-lg p-4">
-              <div className="card-body">
-                <i className="bi bi-check-circle-fill text-success" style={{ fontSize: '4rem' }}></i>
-                <h1 className="text-success mt-3">Payment Successful!</h1>
-                <p className="mt-2">
-                  <strong>${amount}</strong> has been paid to <strong>{recipientName}</strong>
+      <AuthCheck>
+        <div className="min-h-screen bg-background text-foreground flex flex-col p-4">
+          {/* Header with Back Button and Mode Toggle */}
+          <div className="flex justify-between items-center mb-6 container mx-auto rounded-lg">
+            <Button variant="outline" onClick={() => router.push('/dashboard')}>
+              <ArrowLeft className="mr-2 h-4 w-4" /> Dashboard
+            </Button>
+            <ModeToggle />
+          </div>
+
+          <div className="container mx-auto flex-1 flex items-center justify-center">
+            <Card className="max-w-md w-full border-green-500/20 shadow-lg">
+              <CardContent className="pt-6 text-center space-y-4">
+                <div className="flex justify-center">
+                  <CheckCircle className="h-16 w-16 text-green-500" />
+                </div>
+                <h1 className="text-2xl font-bold text-green-500">Payment Successful!</h1>
+                <p className="text-muted-foreground">
+                  <strong className="text-foreground">${amount}</strong> has been paid to <strong className="text-foreground">{recipientName}</strong>
                 </p>
-                <button className="btn btn-primary mt-3" onClick={handleRepayment}>
+                <Button onClick={handleRepayment} className="w-full">
                   Make Another Payment
-                </button>
-              </div>
-            </div>
+                </Button>
+              </CardContent>
+            </Card>
           </div>
         </div>
-      </div>
+      </AuthCheck>
     );
   }
 
   return (
     <AuthCheck>
-      <div className="container mt-5 mb-3">
-        <button
-          className="btn btn-secondary position-fixed"
-          onClick={() => router.push('/dashboard')}
-          style={{ top: '0.5rem', left: '0.5rem', zIndex: 1000, fontSize: "0.85rem" }}
-        >
-          <i className="bi bi-arrow-left"></i> Dashboard
-        </button>
-
-
-        <div className="row mt-4">
-          <div className="col-md-6 mx-auto">
-            <div className="card shadow-sm p-4 text-center">
-              <h3>My Balance</h3>
-              <h1 className="text-success">${balance.toFixed(2)}</h1>
-            </div>
+      <div className="min-h-screen bg-background text-foreground flex flex-col p-4">
+        {/* Header with Back Button and Mode Toggle */}
+        <div className="flex justify-between items-center mb-6 container mx-auto rounded-lg">
+          <Button variant="outline" onClick={() => router.push('/dashboard')}>
+            <ArrowLeft className="mr-2 h-4 w-4" /> Dashboard
+          </Button>
+          <div className="flex items-center gap-4">
+            <h1 className="text-xl font-bold hidden md:block">Make a Payment</h1>
+            <ModeToggle />
           </div>
         </div>
-        <div className="row mt-4">
-          <div className="col-md-6 mx-auto">
-            <div className="card shadow-sm">
-              <div className="card-header">
-                <h4 className="mb-0">Make a Payment</h4>
+
+        <div className="container mx-auto max-w-2xl space-y-8">
+          <Card className="text-center bg-primary/5 border-primary/20">
+            <CardHeader>
+              <CardTitle className="text-muted-foreground text-sm font-medium uppercase tracking-wider">My Balance</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-4xl font-bold text-primary">
+                ${balance.toFixed(2)}
               </div>
-              <div className="card-body">
-                <form onSubmit={handlePayment}>
-                  <div className="mb-3">
-                    <label htmlFor="recipient" className="form-label">Recipient Username or Account No.</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="recipient"
-                      value={recipient}
-                      onChange={(e) => setRecipient(e.target.value)}
-                      required
-                    />
-                  </div>
-                  <div className="mb-3">
-                    <label htmlFor="amount" className="form-label">Amount ($)</label>
-                    <input
-                      type="number"
-                      className="form-control"
-                      id="amount"
-                      value={amount}
-                      onChange={(e) => setAmount(e.target.value)}
-                      required
-                      min="0.01"
-                      step="0.01"
-                    />
-                  </div>
-                  <div className="mb-3">
-                    <label htmlFor="description" className="form-label">Description</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="description"
-                      value={description}
-                      onChange={(e) => setDescription(e.target.value)}
-                      required
-                    />
-                  </div>
-                  {message && <span className="text-danger mb-2">{message}</span>}
-                  <button
-                    type="submit"
-                    className="btn mt-2 btn-primary w-100"
-                    disabled={paymentLoading}
-                  >
-                    <div className="d-flex justify-content-center align-items-center">
-                      {paymentLoading && (
-                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                      )}
-                      <span>{paymentLoading ? 'Processing...' : 'Pay'}</span>
-                    </div>
-                  </button>
-                </form>
-              </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Payment Details</CardTitle>
+              <CardDescription>Enter the recipient and amount below.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handlePayment} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="recipient">Recipient Username or Account No.</Label>
+                  <Input
+                    id="recipient"
+                    placeholder="e.g. nitin or 1234567890"
+                    value={recipient}
+                    onChange={(e) => setRecipient(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="amount">Amount ($)</Label>
+                  <Input
+                    id="amount"
+                    type="number"
+                    placeholder="0.00"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    required
+                    min="0.01"
+                    step="0.01"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="description">Description</Label>
+                  <Input
+                    id="description"
+                    placeholder="For lunch, Rent, etc."
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    required
+                  />
+                </div>
+
+                {message && <p className="text-destructive text-sm text-center font-medium">{message}</p>}
+
+                <Button type="submit" className="w-full" disabled={paymentLoading}>
+                  {paymentLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Processing...
+                    </>
+                  ) : 'Pay Now'}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </AuthCheck>

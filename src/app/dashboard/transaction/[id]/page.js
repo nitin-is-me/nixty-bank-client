@@ -4,6 +4,10 @@ import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import { useParams } from 'next/navigation';
 import AuthCheck from '@/app/components/AuthCheck';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ArrowLeft, Loader2 } from 'lucide-react';
+import { ModeToggle } from '@/components/mode-toggle';
 
 const TransactionDetails = () => {
   const params = useParams();
@@ -34,70 +38,91 @@ const TransactionDetails = () => {
 
   if (loading) {
     return (
-      <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
+      <div className="flex justify-center items-center h-screen bg-background text-foreground">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
 
   if (error) {
-    return <div className="text-danger text-center mt-5">{error}</div>;
+    return (
+      <div className="flex justify-center items-center h-screen bg-background text-destructive">
+        <p>{error}</p>
+      </div>
+    );
   }
 
   if (!transaction) {
-    return <div className="text-danger text-center mt-5">Transaction not found.</div>;
+    return (
+      <div className="flex justify-center items-center h-screen bg-background text-destructive">
+        <p>Transaction not found.</p>
+      </div>
+    );
   }
 
   return (
     <AuthCheck>
-      <div className="container mt-5">
-      <button
-          className="btn btn-secondary position-fixed"
-          onClick={() => router.push('/dashboard')}
-          style={{ top: '0.5rem', left: '0.5rem', zIndex: 1000, fontSize: "0.85rem" }}
-        >
-          <i className="bi bi-arrow-left"></i> Dashboard
-        </button>
-        <h1 className='text-center mb-4'>Transaction Details</h1>
-        <div className="row">
-          <div className="col-md-6">
-            <div className="card mb-4">
-              <div className="card-header">
-                <h5>Sender's Information</h5>
-              </div>
-              <div className="card-body">
-                <p><strong>Name:</strong> {transaction.sender.name}</p>
-                <p><strong>Username:</strong> {transaction.sender.username}</p>
-                <p><strong>Account No:</strong> {transaction.sender.accountNumber}</p>
-                <p><strong>Email:</strong> {transaction.sender.email}</p>
-              </div>
-            </div>
-          </div>
-          <div className="col-md-6">
-            <div className="card mb-4">
-              <div className="card-header">
-                <h5>Receiver's Information</h5>
-              </div>
-              <div className="card-body">
-                <p><strong>Name:</strong> {transaction.receiver.name}</p>
-                <p><strong>Username:</strong> {transaction.receiver.username}</p>
-                <p><strong>Account No:</strong> {transaction.receiver.accountNumber}</p>
-                <p><strong>Email:</strong> {transaction.receiver.email}</p>
-              </div>
-            </div>
+      <div className="min-h-screen bg-background text-foreground flex flex-col p-4">
+
+        {/* Header with Back Button and Mode Toggle */}
+        <div className="flex justify-between items-center mb-6 container mx-auto rounded-lg">
+          <Button variant="outline" onClick={() => router.push('/dashboard')}>
+            <ArrowLeft className="mr-2 h-4 w-4" /> Dashboard
+          </Button>
+          <div className="flex items-center gap-4">
+            <h1 className="text-xl font-bold hidden md:block">Transaction Details</h1>
+            <ModeToggle />
           </div>
         </div>
-        <div className="card mb-4">
-          <div className="card-header">
-            <h5>Transaction Details</h5>
+
+        <div className="container mx-auto max-w-4xl space-y-6">
+          <h1 className='text-center text-3xl font-bold mb-8 md:hidden'>Transaction Details</h1>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Sender's Information</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <p><strong className="font-semibold">Name:</strong> {transaction.sender.name}</p>
+                <p><strong className="font-semibold">Username:</strong> {transaction.sender.username}</p>
+                <p><strong className="font-semibold">Account No:</strong> {transaction.sender.accountNumber}</p>
+                <p><strong className="font-semibold">Email:</strong> {transaction.sender.email}</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Receiver's Information</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <p><strong className="font-semibold">Name:</strong> {transaction.receiver.name}</p>
+                <p><strong className="font-semibold">Username:</strong> {transaction.receiver.username}</p>
+                <p><strong className="font-semibold">Account No:</strong> {transaction.receiver.accountNumber}</p>
+                <p><strong className="font-semibold">Email:</strong> {transaction.receiver.email}</p>
+              </CardContent>
+            </Card>
           </div>
-          <div className="card-body">
-            <p><strong>Date:</strong> {new Date(transaction.date).toLocaleString()}</p>
-            <p><strong>Description:</strong> {transaction.description}</p>
-            <p><strong>Amount Paid:</strong> ${transaction.amount.toFixed(2)}</p>
-          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Transaction Summary</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <strong className="block text-sm font-medium text-muted-foreground">Date</strong>
+                <p>{new Date(transaction.date).toLocaleString()}</p>
+              </div>
+              <div>
+                <strong className="block text-sm font-medium text-muted-foreground">Amount Paid</strong>
+                <p className="text-2xl font-bold">${transaction.amount.toFixed(2)}</p>
+              </div>
+              <div>
+                <strong className="block text-sm font-medium text-muted-foreground">Description</strong>
+                <div className="prose dark:prose-invert" dangerouslySetInnerHTML={{ __html: transaction.description }} />
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </AuthCheck>
