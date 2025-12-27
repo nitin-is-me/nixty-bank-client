@@ -192,7 +192,7 @@ const TransactionPage = () => {
 
                 {message && <p className="text-destructive text-sm text-center font-medium">{message}</p>}
 
-                <Button type="submit" className="w-full" disabled={paymentLoading}>
+                <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white" disabled={paymentLoading}>
                   {paymentLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
