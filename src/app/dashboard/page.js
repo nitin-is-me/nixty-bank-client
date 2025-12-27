@@ -3,6 +3,9 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import AuthCheck from "../components/AuthCheck";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { ModeToggle } from "@/components/mode-toggle";
 
 const Dashboard = () => {
   const [userInfo, setUserInfo] = useState(null);
@@ -18,7 +21,6 @@ const Dashboard = () => {
   const overallLoading = userLoading || transactionsLoading;
 
   const fetchUserInfo = async (token) => {
-    // require token (caller should pass it)
     try {
       const res = await axios.get(
         "https://nixty-bank-hosted-backend.vercel.app/auth/userInfo",
@@ -30,7 +32,6 @@ const Dashboard = () => {
       setBalance(res.data.balance);
     } catch (err) {
       console.error("Error fetching user info:", err);
-      // if unauthorized, redirect to login
       if (err?.response?.status === 401) {
         localStorage.removeItem("token");
         router.replace("/auth/login");
@@ -65,14 +66,11 @@ const Dashboard = () => {
     const init = async () => {
       const token = localStorage.getItem("token");
       if (!token) {
-        // no token -> not logged in: stop loading and redirect (or show login CTA)
         setUserLoading(false);
         setTransactionsLoading(false);
-        router.replace("/auth/login"); // change to router.push if you want a back history entry
+        router.replace("/auth/login");
         return;
       }
-
-      // have token: call apis
       await fetchUserInfo(token);
       await fetchTransactions(token);
     };
@@ -96,109 +94,108 @@ const Dashboard = () => {
     router.push("/dashboard/pay");
   };
 
-  // Spinner only while actual network loading is happening
   if (overallLoading) {
     return (
-      <div className="d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
+      <div className="flex justify-center items-center h-screen bg-background text-foreground">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
     );
   }
 
-  // If not loading but we have no userInfo, the user is unauthenticated (show login CTA)
   if (!userInfo || balance === null) {
+    // Fallback if not redirected yet
     return (
-      <div className="d-flex flex-column justify-content-center align-items-center" style={{ height: "100vh" }}>
-        <h3 className="mb-3">You are not logged in</h3>
-        <button className="btn btn-primary" onClick={() => router.push("/auth/login")}>
+      <div className="flex flex-col justify-center items-center h-screen bg-background text-foreground gap-4">
+        <h3 className="text-xl">You are not logged in</h3>
+        <Button onClick={() => router.push("/auth/login")}>
           Go to Login
-        </button>
+        </Button>
       </div>
     );
   }
 
   return (
     <AuthCheck>
-      <div>
-        <div className="bg-dark text-white text-center py-3">
-          <h1 className="m-0">Nixty Bank</h1>
-          <button
-            className="btn btn-danger position-absolute"
-            style={{ top: "1rem", right: "1rem", fontSize: "0.85rem" }}
-            onClick={handleLogout}
-            disabled={loadingLogout}
-          >
-            {loadingLogout ? (
-              <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-            ) : (
-              "Logout"
-            )}
-          </button>
-        </div>
-
-        <div className="container mt-5">
-          <h2 className="text-center">Welcome to your bank account, {userInfo.name}</h2>
-
-          <div className="row justify-content-center mt-4">
-            <div className="col-md-6">
-              <div className="card shadow-sm p-4 text-center">
-                <h3>My Balance</h3>
-                <h1 className="text-success">${balance.toFixed(2)}</h1>
-                <button className="btn btn-primary mt-3" onClick={handlePayClick} disabled={loadingPayment}>
-                  {loadingPayment ? (
-                    <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                  ) : (
-                    "Pay to Account"
-                  )}
-                </button>
-                <div className="mt-3">My A/c no: <strong>{userInfo.accountNumber}</strong></div>
-                <div className="mt-3">My Email: <strong>{userInfo.email}</strong></div>
-              </div>
+      <div className="min-h-screen bg-background text-foreground flex flex-col">
+        <header className="border-b bg-card">
+          <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div className="flex items-center gap-2">
+              <div className="bg-primary text-primary-foreground p-1.5 rounded-md font-bold text-lg">NB</div>
+              <h1 className="text-lg font-bold">Nixty Bank</h1>
             </div>
-
-            <div className="col-md-4">
-              <div className="card shadow-sm w-100" style={{ height: "80vh" }}>
-                <div className="card-header">
-                  <h4 className="mb-0">Transaction History</h4>
-                </div>
-                <div className="card-body overflow-auto">
-                  <ul className="list-group">
-                    {transactions.map((t) => {
-                      const isSender = t.sender.username === userInfo.username;
-                      const dateObj = new Date(t.date);
-                      const formattedDate = `${dateObj.getDate().toString().padStart(2, "0")}/${(dateObj.getMonth() + 1)
-                        .toString()
-                        .padStart(2, "0")}/${dateObj.getFullYear()} - ${dateObj
-                        .getHours()
-                        .toString()
-                        .padStart(2, "0")}:${dateObj.getMinutes().toString().padStart(2, "0")}`;
-
-                      return (
-                        <li key={t._id} className="list-group-item d-flex justify-content-between align-items-center">
-                          <div>
-                            <strong className="text-break">{t.description}</strong>
-                            <br />
-                            <small>{formattedDate}</small>
-                            <br />
-                            <small>{isSender ? `To ${t.receiver.name}` : `From ${t.sender.name}`}</small>
-                          </div>
-                          <span className={isSender ? "text-danger" : "text-success"}>
-                            {isSender ? "-" : "+"}${Math.abs(t.amount).toFixed(2)}
-                          </span>
-                          <button onClick={() => router.push(`/dashboard/transaction/${t._id}`)} className="btn btn-link">
-                            View Details
-                          </button>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
-              </div>
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-muted-foreground hidden md:inline-block">Welcome, {userInfo.name}</span>
+              <ModeToggle />
+              <Button variant="destructive" size="sm" onClick={handleLogout} disabled={loadingLogout}>
+                {loadingLogout ? "Logging out..." : "Logout"}
+              </Button>
             </div>
           </div>
-        </div>
+        </header>
+
+        <main className="flex-1 container mx-auto px-4 py-8">
+          <div className="grid md:grid-cols-2 gap-8">
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>My Balance</CardTitle>
+                  <CardDescription>Available funds in your account</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="text-4xl font-bold text-primary">
+                    ${balance.toFixed(2)}
+                  </div>
+                  <div className="space-y-1 text-sm text-muted-foreground">
+                    <div>Account No: <span className="font-mono text-foreground font-medium">{userInfo.accountNumber}</span></div>
+                    <div>Email: <span className="text-foreground">{userInfo.email}</span></div>
+                  </div>
+                </CardContent>
+                <div className="p-6 pt-0">
+                  <Button className="w-full" onClick={handlePayClick} disabled={loadingPayment}>
+                    {loadingPayment ? "Loading..." : "Pay to Account"}
+                  </Button>
+                </div>
+              </Card>
+            </div>
+
+            <div className="h-[calc(100vh-12rem)] min-h-[500px]">
+              <Card className="h-full flex flex-col">
+                <CardHeader>
+                  <CardTitle>Transaction History</CardTitle>
+                </CardHeader>
+                <CardContent className="flex-1 overflow-auto p-0">
+                  <div className="divide-y text-card-foreground">
+                    {transactions.length === 0 ? (
+                      <div className="p-6 text-center text-muted-foreground">No transactions found.</div>
+                    ) : transactions.map((t) => {
+                      const isSender = t.sender.username === userInfo.username;
+                      const dateObj = new Date(t.date);
+                      const formattedDate = dateObj.toLocaleDateString() + " - " + dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                      return (
+                        <div key={t._id} className="p-4 flex justify-between items-center hover:bg-muted/50 transition-colors">
+                          <div className="space-y-1">
+                            <p className="font-medium text-sm leading-none">{t.description}</p>
+                            <p className="text-xs text-muted-foreground">{formattedDate}</p>
+                            <p className="text-xs text-muted-foreground">{isSender ? `To ${t.receiver.name}` : `From ${t.sender.name}`}</p>
+                          </div>
+                          <div className="text-right">
+                            <div className={`font-bold ${isSender ? "text-destructive" : "text-green-600"}`}>
+                              {isSender ? "-" : "+"}${Math.abs(t.amount).toFixed(2)}
+                            </div>
+                            <Button variant="link" className="h-auto p-0 text-xs" onClick={() => router.push(`/dashboard/transaction/${t._id}`)}>
+                              View Details
+                            </Button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </main>
       </div>
     </AuthCheck>
   );

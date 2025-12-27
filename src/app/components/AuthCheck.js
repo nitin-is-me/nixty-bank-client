@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
 
 const AuthCheck = ({ children }) => {
     const [loading, setLoading] = useState(true);
@@ -13,19 +14,15 @@ const AuthCheck = ({ children }) => {
             try {
                 const token = localStorage.getItem("token");
                 if (!token) throw new Error("No token found");
-                
-                // console.log("Verifying token:", token);
 
                 await axios.post('https://nixty-bank-hosted-backend.vercel.app/auth/verifyToken', {}, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
-                
-                
+
                 setIsAuthenticated(true);
             } catch (error) {
                 console.error('Token verification failed:', error);
                 setIsAuthenticated(false);
-                // router.push('/auth/login');  redirecting to login if user is not verified, but im already showing login button
             } finally {
                 setLoading(false);
             }
@@ -36,21 +33,19 @@ const AuthCheck = ({ children }) => {
 
     if (loading) {
         return (
-            <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
-                <div className="spinner-border text-primary" role="status">
-                    <span className="visually-hidden">Loading...</span>
-                </div>
+            <div className="flex justify-center items-center h-screen bg-background">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
             </div>
         );
     }
 
     if (!isAuthenticated) {
         return (
-            <div className="text-center" style={{ marginTop: '50px' }}>
-                <h2>You're not logged in</h2>
-                <button className="btn btn-primary" onClick={() => router.push('/auth/login')}>
+            <div className="flex flex-col justify-center items-center h-screen bg-background text-foreground gap-4">
+                <h2 className="text-2xl font-bold">You're not logged in</h2>
+                <Button onClick={() => router.push('/auth/login')}>
                     Login
-                </button>
+                </Button>
             </div>
         );
     }

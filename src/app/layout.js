@@ -1,7 +1,6 @@
-import localFont from "next/font/local";
-// import "./globals.css";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "bootstrap-icons/font/bootstrap-icons.min.css"
+import "./globals.css";
+import { ThemeProvider } from "@/components/theme-provider"
+
 export const metadata = {
   title: "Nixty bank",
   description: "Make fast and secure payments",
@@ -9,9 +8,16 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body>
-        {children}
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

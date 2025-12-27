@@ -2,6 +2,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { ModeToggle } from '@/components/mode-toggle';
 
 export default function Signup() {
   const [username, setUsername] = useState("");
@@ -12,16 +18,9 @@ export default function Signup() {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [loadingSignup, setLoadingSignup] = useState(false);
-  const [loadingRedirect, setLoadingRedirect] = useState(false);
   const [loadingOtp, setLoadingOtp] = useState(false);
   const [showOtpForm, setShowOtpForm] = useState(false);
   const router = useRouter();
-
-  const handleRedirect = async (e) => {
-    e.preventDefault();
-    setLoadingRedirect(true);
-    router.push("/auth/login");
-  };
 
   const handleSignup = async (e) => {
     e.preventDefault();
@@ -83,139 +82,112 @@ export default function Signup() {
   };
 
   return (
-    <div className="container mt-5">
-      <div className="d-flex justify-content-center">
-        <div className="card shadow-lg" style={{ maxWidth: "400px", width: "100%" }}>
-          <div className="card-body">
-            <div className="text-center" style={{ backgroundColor: '#343a40', padding: '20px', borderRadius: '0.5rem' }}>
-              <h1 className='text-white mb-0'>Nixty Bank</h1>
-            </div>
-            {!showOtpForm ? (
-              <>
-                <h3 className="text-center mb-4 mt-4">Sign Up</h3>
-                <form>
-                  <div className="mb-3">
-                    <label className="form-label">Enter your Name</label>
-                    <input
-                      value={name}
-                      type="text"
-                      onChange={(e) => setName(e.target.value)}
-                      className="form-control"
-                      placeholder="Name here"
-                      required
-                    />
-                  </div>
-                  <div className="mb-3">
-                    <label className="form-label">Enter your Username</label>
-                    <input
-                      value={username}
-                      type="text"
-                      onChange={(e) => setUsername(e.target.value)}
-                      className="form-control"
-                      placeholder="Username here"
-                      required
-                    />
-                  </div>
-                  <div className="mb-3">
-                    <label className="form-label">Enter your Email</label>
-                    <input
-                      value={email}
-                      type="email"
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="form-control"
-                      placeholder="Email here"
-                      required
-                    />
-                  </div>
-                  <div className="mb-4">
-                    <label className="form-label">Enter your Password</label>
-                    <input
-                      value={password}
-                      type="password"
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="form-control"
-                      placeholder="Password here"
-                      required
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    onClick={handleSignup}
-                    className="btn btn-primary w-100"
-                    disabled={loadingSignup}
-                  >
-                    {loadingSignup ? (
-                      <div className="d-flex align-items-center">
-                        <div className="spinner-border spinner-border-sm text-white me-2" role="status">
-                          <span className="visually-hidden">Loading...</span>
-                        </div>
-                        Signing Up...
-                      </div>
-                    ) : (
-                      "Sign Up"
-                    )}
-                  </button>
-                  <p className="mt-3 text-center">
-                    Already have an account?
-                    <a
-                      href="#"
-                      onClick={handleRedirect}
-                      className="link-primary ms-2"
-                      style={{ pointerEvents: loadingRedirect ? 'none' : 'auto' }}
-                    >
-                      {loadingRedirect ? (
-                        <div className="spinner-border spinner-border-sm" role="status">
-                          <span className="visually-hidden">Loading...</span>
-                        </div>
-                      ) : (
-                        "Login"
-                      )}
-                    </a>
-                  </p>
-                  <span className="text-danger d-block text-center">{error}</span>
-                  <span className="text-success d-block text-center">{message}</span>
-                </form>
-              </>
-            ) : (
-              <>
-                <h3 className="text-center mb-4 mt-4">Enter OTP</h3>
-                <form>
-                  <div className="mb-3">
-                    <label className="form-label">Enter the OTP sent to your Email</label>
-                    <input
-                      value={otp}
-                      type="text"
-                      onChange={(e) => setOtp(e.target.value)}
-                      className="form-control"
-                      placeholder="OTP here"
-                      required
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    onClick={handleOtpSubmit}
-                    className="btn btn-primary w-100"
-                    disabled={loadingOtp}
-                  >
-                    {loadingOtp ? (
-                      <div className="d-flex align-items-center">
-                        <div className="spinner-border spinner-border-sm text-white me-2" role="status">
-                          <span className="visually-hidden">Loading...</span>
-                        </div>
-                        Verifying...
-                      </div>
-                    ) : (
-                      "Verify OTP"
-                    )}
-                  </button>
-                  <span className="text-danger d-block text-center">{error}</span>
-                  <span className="text-success d-block text-center">{message}</span>
-                </form>
-              </>
-            )}
-          </div>
-        </div>
+    <div className="min-h-screen flex items-center justify-center bg-background p-4 relative">
+      <div className="absolute top-4 right-4">
+        <ModeToggle />
       </div>
+      <Card className="w-full max-w-md">
+        <CardHeader className="space-y-1 text-center">
+          <div className="bg-primary text-primary-foreground w-12 h-12 flex items-center justify-center rounded-lg mx-auto mb-2 text-xl font-bold">NB</div>
+          <CardTitle className="text-2xl">{showOtpForm ? "Verify OTP" : "Sign Up"}</CardTitle>
+          <CardDescription>
+            {showOtpForm ? "Enter the OTP sent to your email" : "Create an account to get started"}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {!showOtpForm ? (
+            <form onSubmit={handleSignup} className="grid gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="name">Name</Label>
+                <Input
+                  id="name"
+                  type="text"
+                  placeholder="John Doe"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="username">Username</Label>
+                <Input
+                  id="username"
+                  type="text"
+                  placeholder="johndoe"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="m@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </div>
+              <span className="text-destructive text-sm text-center">{error}</span>
+              <span className="text-green-600 text-sm text-center">{message}</span>
+              <Button type="submit" className="w-full" disabled={loadingSignup}>
+                {loadingSignup ? (
+                  <>
+                    <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"></span>
+                    Signing Up...
+                  </>
+                ) : 'Sign Up'}
+              </Button>
+            </form>
+          ) : (
+            <form onSubmit={handleOtpSubmit} className="grid gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="otp">OTP</Label>
+                <Input
+                  id="otp"
+                  type="text"
+                  placeholder="Enter OTP"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                  required
+                />
+              </div>
+              <span className="text-destructive text-sm text-center">{error}</span>
+              <span className="text-green-600 text-sm text-center">{message}</span>
+              <Button type="submit" className="w-full" disabled={loadingOtp}>
+                {loadingOtp ? (
+                  <>
+                    <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"></span>
+                    Verifying...
+                  </>
+                ) : 'Verify OTP'}
+              </Button>
+            </form>
+          )}
+        </CardContent>
+        {!showOtpForm && (
+          <CardFooter className="flex flex-col gap-2">
+            <div className="text-center text-sm">
+              Already have an account?{" "}
+              <Link href="/auth/login" className="underline hover:text-primary">
+                Login
+              </Link>
+            </div>
+          </CardFooter>
+        )}
+      </Card>
     </div>
   );
 }
